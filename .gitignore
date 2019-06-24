@@ -1,4 +1,6 @@
 .DS_Store
-
+*.db
 .idea
 .idea/**/*.*
+onepiece/images/**/*.jpg
+onepiece/images/**/*.png
