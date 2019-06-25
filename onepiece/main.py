@@ -1,4 +1,4 @@
-import re
+import re, requests, os, time
 import urllib.request
 import sqlite3
 import ssl
@@ -11,7 +11,6 @@ records = {
     'special': []  # 有特殊描述
 }
 
-
 # https://one-piece.com/assets/images/anime/character/data/Kuromarimo/img.jpg
 # https://one-piece.com/assets/images/anime/character/data/Kuromarimo/face.jpg
 # https://one-piece.com/log/character/detail/kuzan.html
@@ -21,11 +20,11 @@ def main():
     tar_url = 'https://one-piece.com/log/character.html?p='
     fruit_url = 'https://one-piece.com/log/character/devilfruit.html?p='
     limits = [26, 4]  # 角色有26页，恶魔果实有4页
-
+    print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
     # 初始化
     init_db()
 
-    # 收集第一波数据
+    # 收集基本信息+恶魔果实数据
     idx = 1
     while idx <= limits[0]:
         get_base(tar_url + str(idx))
@@ -38,11 +37,13 @@ def main():
     where = ''
     list = get_list(where)
 
-    # 根据收集到的第一波数据获取第二波数据 # detail_url = 'https://one-piece.com/log/character/detail/Amazon.html'
+    # 根据收集到的第一波数据获取第二波数据-详情信息 # detail_url = 'https://one-piece.com/log/character/detail/Amazon.html'
     for arr in list:
         get_details(arr[2])
 
-    # 查找下载错误的图片
+    # 下载图片
+    list = get_list('')
+    # # 查找下载错误的图片
     # names = []
     # for root, dirs, files in os.walk('./images/img/'):
     #     for file_item in files:
@@ -50,23 +51,25 @@ def main():
     #         size = os.path.getsize(img_path)
     #         name = re.sub(r'\.\w+$', '', file_item)
     #         names.append('\'' + name + '\'')
-    #         # if size == 269422:
-    #         #     name = re.sub(r'\.\w+$', '', file_item)
-    #         #     names.append('\'' + name + '\'')
+    #         if size == 269422:
+    #             name = re.sub(r'\.\w+$', '', file_item)
+    #             names.append('\'' + name + '\'')
+    #             # os.remove(img_path)
     #
     # print(len(names), names)
-    # where = ' where ename not in ({0})'.format(','.join(names))
+    # where = ' where ename in ({0})'.format(','.join(names))
     # list = get_list(where)
 
     # 下载图片
     for data in list:
         ename = data[2]
-        # time.sleep(3)
-        download_img(data[5], 'face', ename)
-        # time.sleep(3)
-        download_img(data[6], 'img', ename)
+        # time.sleep(1) # download_img(data[5], 'face', ename)
+        download_with_headers(data[5], 'face', ename)
+        download_with_headers(data[6], 'img', ename)
 
+    print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
+# 根据where条件获取list
 def get_list(where):
     conn = sqlite3.connect(db_name)
     sql = 'select * from role ' + where
@@ -76,7 +79,6 @@ def get_list(where):
         list.append(row)
     conn.close()
     return list
-
 
 # 获取desc、birthday、attr、img
 def get_details(ename):
@@ -132,7 +134,6 @@ def get_details(ename):
     print(data)
     update_role(data)
 
-
 # 获取特殊描述
 def get_special_desc(html, url):
     desc = ''
@@ -156,7 +157,6 @@ def get_special_desc(html, url):
                     desc += '\n' + arr[5] + '\n'
     return desc
 
-
 def update_role(data):
     sql = r'''update role set 
                         nickname='{nickname}', img='{img}', birthday='{birthday}', bounty='{bounty}' , attr='{attr}', desc='{desc}' 
@@ -165,7 +165,6 @@ def update_role(data):
     conn.execute(sql)
     conn.commit()
     conn.close()
-
 
 # 获取基本信息：日文名称、英文名称、头像
 def get_base(url):
@@ -181,7 +180,6 @@ def get_base(url):
     if len(list) > 0:
         for obj in list:
             insert_base(obj)
-
 
 def insert_base(arr):
     face = prefix + arr[2]
@@ -199,7 +197,6 @@ def insert_base(arr):
     conn.commit()
     conn.close()
 
-
 # 获取果实
 def get_fruit(url):
     page = urllib.request.urlopen(url)
@@ -213,7 +210,6 @@ def get_fruit(url):
     if len(list) > 0:
         for obj in list:
             insert_fruit(obj)
-
 
 def insert_fruit(arr):
     data = {}
@@ -229,13 +225,11 @@ def insert_fruit(arr):
     conn.commit()
     conn.close()
 
-
 def format_mul_val(val):
     n = val
     if val != '':
         n = ' | ' + val
     return n
-
 
 def init_db():
     conn = sqlite3.connect(db_name)
@@ -281,7 +275,6 @@ def init_db():
     conn.commit()
     print('table role and devilfruit created')
 
-
 def get_data():
     data = {}
     data["jname"] = ''
@@ -296,48 +289,54 @@ def get_data():
     data["desc"] = ''
     return data
 
+# -------------------- 下载图片相关 --------------------
+'''
+图片有两种，一种可以直接下载：https://one-piece.com/assets/images/anime/character/data/izo/img.jpg
+一种需要配置请求头才可以下载：https://one-piece.com/assets/uploads/anime/character/characters/20180820
+/46c2d42ca1a4d8f509a8d0e5fd86d7b6.jpg
+'''
+# 获取本地文件地址
+def get_local_path(img_url, ename, dir):
+    group = re.search(r'\/[\w\d]+(\.\w+)$', img_url)
+    stuff = ''
+    if group is not None and (len(group.groups()) > 0):
+        stuff = group.group(1)
+    return r'./images/{0}/{1}'.format(dir, ename + stuff)
 
-# 下载图片
+# 下载图片，设置request headers，设置了多个header项，因为懒得去找该网站到底是根据哪一项来做限制的
+def download_with_headers(img_url, dir, ename):
+    if img_url == '':
+        return print(ename, dir, '地址为空')
+
+    headers = {
+        'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'zh-CN,zh;q=0.9,ja;q=0.8',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Cookie': '_ga=GA1.2.1713471329.1531883956; _gid=GA1.2.1810287860.1532905602; _gat=1',
+        'Host': 'one-piece.com',
+        'Pragma': 'no-cache',
+        'Referer': 'https://one-piece.com/log/character.html?p=1',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.36'
+    }
+    local_path = get_local_path(img_url, ename, dir)
+    print('download', ename, dir, img_url, local_path)
+
+    r = requests.get(img_url, headers=headers)
+    image = r.content
+
+    with open(local_path, 'wb') as fb:
+        fb.write(image)
+
+# 下载图片(不设置request headers)
 def download_img(img_url, dir, ename):
     if img_url == '':
         return print(ename, dir, '地址为空')
-    group = re.search(r'\/[\w\d]+(\.\w+)$', img_url)
-    if group is None or (len(group.groups()) == 0):
-        return print(img_url, 'error')
-    name = ename + group.group(1)
-    print('download', ename, dir, img_url, r'./images/{0}/{1}'.format(dir, name))
-    urllib.request.urlretrieve(img_url, r'./images/{0}/{1}'.format(dir, name))
+    local_path = get_local_path(img_url, ename, dir)
 
-
-# 下载图片
-# def download_with_headers(img_url, dir, ename):
-#     # download_with_headers(
-#     #     'http://one-piece.com/assets/uploads/anime/character/characters/20171214/50f0be732521606429cd098c6cc02d39.jpg',
-#     #     'test', 'Amazon')
-#
-#     if img_url == '':
-#         return print(ename, dir, '地址为空')
-#
-#     # 获取页面信息
-#     headers = {
-#         'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
-#         'Accept-Encoding': 'gzip, deflate, br',
-#         'Accept-Language': 'zh-CN,zh;q=0.9,ja;q=0.8',
-#         'Cache-Control': 'no-cache',
-#         'Connection': 'keep-alive',
-#         'Cookie': '_ga=GA1.2.1713471329.1531883956; _gid=GA1.2.1810287860.1532905602; _gat=1',
-#         'Host': 'one-piece.com',
-#         'Pragma': 'no-cache',
-#         'Referer': 'https://one-piece.com/log/character.html?p=1',
-#         'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.36'
-#     }
-#     r = requests.get(img_url, headers=headers)
-#     # http = urllib3.PoolManager()
-#     # r = http.request('GET', img_url, headers=headers)
-#     # html = r.read()
-#     # for chunk in r.stream(32):
-#     #     print(chunk)
-
+    print('download', ename, dir, img_url, local_path)
+    urllib.request.urlretrieve(img_url, local_path)
 
 if __name__ == "__main__":
     main()
