@@ -14,8 +14,9 @@ get请求可直接获取到数据，列表类型分为六类：
 #### type1
 - 列表中带大图的类型 ntype=5
 - 详情页：两个tab，第一个是公司信息，第二个才是招聘信息，默认公司信息
-- 详情页url: https://next.rikunabi.com/company/cmi2006874001/nx1_rq0017697659/?fr=cp_s00700&amp;list_disp_no=51&amp;leadtc=n_ichiran_cst_n5_ttl
-- 备注：
+- 详情页url-tab1: https://next.rikunabi.com/company/cmi2006874001/nx1_rq0017697659/?fr=cp_s00700&amp;list_disp_no=51&amp;leadtc=n_ichiran_cst_n5_ttl
+- 详情页url-tab2: https://next.rikunabi.com/company/cmi0438516102/nx2_rq0017769399/?leadtc=ngen_tab-top_info&__m=1561433135727-3042855228172019884
+- 备注：tab选中与否由url中的 nx1/2 决定
 #### type2
 - 带小图（三四张图片拼接起来的） ntype=4
 - 详情页：直接是招聘信息
@@ -24,9 +25,8 @@ get请求可直接获取到数据，列表类型分为六类：
 #### type3 
 - 带一张单独的小图  ntype=3
 - 详情页：直接是招聘信息
-- 详情页url-tab1: https://next.rikunabi.com/company/cmi2008965001/nx1_rq0017650766/?fr=cp_s00700&amp;list_disp_no=201&amp;leadtc=n_ichiran_cst_n3_ttl
-- 详情页url-tab2: https://next.rikunabi.com/company/cmi0438516102/nx2_rq0017769399/?leadtc=ngen_tab-top_info&__m=1561433135727-3042855228172019884
-- 备注：tab选中与否由url中的 nx1/2 决定
+- 详情页url: https://next.rikunabi.com/company/cmi2008965001/nx1_rq0017650766/?fr=cp_s00700&amp;list_disp_no=201&amp;leadtc=n_ichiran_cst_n3_ttl
+- 备注：
 #### type4
 - 带一个链接区域   ntype=2
 - 详情页：直接是招聘信息
@@ -53,17 +53,18 @@ get请求可直接获取到数据，列表类型分为六类：
 原始数据表 raw:
 id：自增
 title：标题
-content：工作内容
-claim：任职要求
-addr：工作地点
-salary：工资
-worktime：上班时间
-holiday：休假信息
-welfare：福利
+content：工作内容  -- 仕事の内容
+claim：任职要求    -- 求めている人材
+addr：工作地点     -- 勤務地
+salary：工资       -- 給与
+worktime：上班时间  -- 勤務時間
+holiday：休假信息   -- 休日・休暇
+welfare：福利      -- 待遇・福利厚生
 during：招聘信息有效期/招聘时间
 tags：标签（正社员、之类的）
 company：招聘公司名称
 desc：备注
+url：数据来源url
 createdTime：该记录的创建时间
 ```
 

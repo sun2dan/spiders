@@ -10,20 +10,21 @@ class DBA():
 
         sql = '''
             CREATE TABLE "raw" (
-                "id"	INTEGER PRIMARY KEY AUTOINCREMENT,
-                "title"	TEXT,
-                "content"	TEXT,
-                "claim"	TEXT,
-                "addr"	TEXT,
-                "salary"	TEXT,
-                "worktime"	TEXT,
-                "holiday"	TEXT,
-                "welfare"	TEXT,
+                "id"	    INTEGER PRIMARY KEY AUTOINCREMENT,
+                "title"	    TEXT,   
+                "content"	TEXT,   -- 仕事の内容
+                "claim"	    TEXT,   -- 求めている人材
+                "addr"	    TEXT,   -- 勤務地
+                "salary"	TEXT,   -- 給与
+                "worktime"	TEXT,   -- 勤務時間
+                "holiday"	TEXT,   -- 休日・休暇
+                "welfare"	TEXT,   -- 待遇・福利厚生
                 "during"	TEXT,
-                "tags"	TEXT,
+                "tags"	    TEXT,
                 "company"	TEXT,
-                "desc" TEXT, 
-                "createdTime" DateTime DEFAULT 'datetime()'
+                "desc"      TEXT, 
+                "url"       TEXT,   -- 数据来源url
+                "createdTime" DateTime DEFAULT (datetime('now', 'localtime'))
             )'''
         try:
             conn.execute(sql)
@@ -50,13 +51,15 @@ class DBA():
         data["tags"] = ''
         data["company"] = ''
         data["desc"] = ''
+        data["url"] = ''
         data["createdTime"] = ''
         return data
 
     def insert(self, data):
         conn = sqlite3.connect(self.db_name)
-        sql = '''insert into raw (title, content, claim, addr, salary, worktime, holiday, welfare, during, tags, company, desc) values ('{title}', '{content}', '{claim}', '{addr}', '{salary}', '{worktime}', '{holiday}', '{welfare}', '{during}', '{tags}', '{company}', '{desc}' )'''.format(
+        sql = '''insert into raw (title, content, claim, addr, salary, worktime, holiday, welfare, during, tags, company, desc, url) values ('{title}', '{content}', '{claim}', '{addr}', '{salary}', '{worktime}', '{holiday}', '{welfare}', '{during}', '{tags}', '{company}', '{desc}', '{url}' )'''.format(
             **data)
+        # print(sql)
         conn.execute(sql)
         conn.commit()
         conn.close()
