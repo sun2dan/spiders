@@ -24,6 +24,7 @@ class DBA():
                 "company"	TEXT,
                 "desc"      TEXT, 
                 "url"       TEXT,   -- 数据来源url
+                "ntype"     TEXT,   -- ntype 类型
                 "createdTime" DateTime DEFAULT (datetime('now', 'localtime'))
             )'''
         try:
@@ -52,12 +53,13 @@ class DBA():
         data["company"] = ''
         data["desc"] = ''
         data["url"] = ''
+        data["ntype"] = ''
         data["createdTime"] = ''
         return data
 
     def insert(self, data):
         conn = sqlite3.connect(self.db_name)
-        sql = '''insert into raw (title, content, claim, addr, salary, worktime, holiday, welfare, during, tags, company, desc, url) values ('{title}', '{content}', '{claim}', '{addr}', '{salary}', '{worktime}', '{holiday}', '{welfare}', '{during}', '{tags}', '{company}', '{desc}', '{url}' )'''.format(
+        sql = '''insert into raw (title, content, claim, addr, salary, worktime, holiday, welfare, during, tags, company, desc, url, ntype) values ('{title}', '{content}', '{claim}', '{addr}', '{salary}', '{worktime}', '{holiday}', '{welfare}', '{during}', '{tags}', '{company}', '{desc}', '{url}', '{ntype}' )'''.format(
             **data)
         # print(sql)
         conn.execute(sql)
