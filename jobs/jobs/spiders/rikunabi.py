@@ -61,7 +61,6 @@ class JobOperator(scrapy.Spider):  # 继承scrapy.Spider类
 
             idx += 1
             self.index += 1
-            self.write_log(str(self.index) + ', ' + response.url + ', ' + detail_url)
             print(self.index, detail_url)
 
             # 请求二级页面
@@ -91,7 +90,6 @@ class JobOperator(scrapy.Spider):  # 继承scrapy.Spider类
         elif ntype == 't':
             self.handle_t(data, response)
 
-        self.write_log(str(ntype) + ', ' + str(data) + ', ' + response.url)
         self.dba.insert(data)
 
     # 处理 type5-1 页面的内容
@@ -139,7 +137,7 @@ class JobOperator(scrapy.Spider):  # 继承scrapy.Spider类
                 data[key] = self.format_cont(cont)
             else:  # 额外的内容
                 desc_arr.append(
-                    '<div>{0}##{1}</div>'.format(re.sub(r'\s+', '', theads[idx]), self.format_cont(cont, 'p')))
+                    '<div>{0}##{1}</div>'.format(re.sub(r'\s+', '', theads[idx]), self.format_cont(cont)))
             idx += 1
         data['desc'] = ''.join(desc_arr)
 
@@ -168,10 +166,10 @@ class JobOperator(scrapy.Spider):  # 继承scrapy.Spider类
             'content',  # 工作内容 - - 仕事の内容
             'claim',  # 任职要求 - - 求めている人材
             'addr',  # 工作地点 - - 勤務地
-            'salary',  # 工资 - - 給与
             'worktime',  # 上班时间 - - 勤務時間
-            'holiday',  # 休假信息 - - 休日・休暇
+            'salary',  # 工资 - - 給与
             'welfare',  # 福利 - - 待遇・福利厚生
+            'holiday',  # 休假信息 - - 休日・休暇
             'desc'  # 其他字段放到备注中
         ]
 
@@ -188,7 +186,15 @@ class JobOperator(scrapy.Spider):  # 继承scrapy.Spider类
             idx += 1
         data['desc'] = ''.join(desc_arr)
 
-    # 格式化html标签内容：去空格、去外层p标签+
+    # 新内容格式化，type1-5
+    def format_cont(self, cont):
+        s1 = re.sub(r'(\s+)|(<p>)', '', cont)  # 去空格  # re.sub(r'</?\w+>', '', s3) # 去所有标签
+        s2 = re.sub(r'</p>', '<br>', s1)  # 内部p结束标签替换成br
+        s3 = re.sub(r'(<br/?>)+', '<br>', s2)  # 多个br合并 <br><br>
+        s4 = re.sub(r"'", "''", s3)  # 单引号替换
+        return s4
+
+    # 老版内容格式化，type-t
     def format_cont_old(self, cont):
         s1 = re.sub(r'(</?dt[\w\d\s\"\'\-_=]{0,}>)|(\s+)|(</?span[\w\d\s\"\'\-_=]{0,}>)', '', cont)  # 去空格、dt、span标签
         s2 = re.sub(r'(<br/?>)+', '<br>', s1)  # 去连在一块的br <br><br>
@@ -196,21 +202,7 @@ class JobOperator(scrapy.Spider):  # 继承scrapy.Spider类
         s4 = re.sub(r'(^<p>)|(</p>$)', '', s3)  # 去外层p
         return re.sub(r"'", "''", s4)
 
-    # 格式化html标签内容：去空格、去外层p标签等
-    # rule: 规则字符串，是否不进行某些操作，p:不替换p标签
-    def format_cont(self, cont, rule=''):
-        is_p = rule.find('p')  # p
-
-        s1 = re.sub(r'\s+', '', cont)  # 去空格
-        s2 = re.sub(r'(<br/?>)+', '<br>', s1)  # 去连在一块的br <br><br>
-        s3 = re.sub(r'\'', '\\\'', s2)
-        if is_p == -1:  # 需要去掉外层p标签
-            s3 = re.sub(r'(^<p>)|(</p>$)', '', s3)
-        # re.sub(r'</?\w+>', '', s3) # 去所有标签
-        return s3
-
     def write_log(self, cont):
-        return
         fileName = './logs.txt'
         with open(fileName, "a+") as f:  # “a+”以追加的形式
             f.write(cont)
