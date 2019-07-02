@@ -1,62 +1,508 @@
 <!DOCTYPE HTML>
-
 <html lang="ja" data-env="/">
 <head>
-<meta charset="UTF-8" />
-<meta name="robots" content="noindex, nofollow" />
-<title>転職はマイナビ転職-豊富な転職情報で支援する転職サイト</title>
-<meta name="description" content="転職なら日本最大級の転職サイト【マイナビ転職】。第三者機関評価No.1に選ばれた豊富な正社員の転職情報のほか、転職ノウハウ、スカウト、履歴書・職務経歴書コーチであなたの転職活動を支援する転職サイトです。毎日キャリアナビからブランドチェンジ。" />
-<meta name="keyword" content="転職,転職サイト,転職情報,スカウト,職務経歴書,適性診断,転職支援,マイナビ転職,毎日キャリアナビ" />
-<link rel="icon" href="/lib/tm/pc/img/icon/favicon.ico" type="image/x-icon" />
-<link rel="stylesheet" href="/lib/tm/pc/css/style.css" />
-<!--[if lt IE 10]>
-<link rel="stylesheet" href="/lib/tm/pc/css/style_ie9_0.css" />
-<link rel="stylesheet" href="/lib/tm/pc/css/style_ie9_1.css" />
-<![endif]-->
+    <meta charset="UTF-8"/>
+    <title>WEB・インターネット・ゲームの転職・求人情報 | マイナビ転職</title>
+    <meta name="viewport" content="width=950"/>
 </head>
-<body class="js__modal">
-
-  <div class="wrapper">
-    <header class="headerLower">
-      <div class="headerLower__content">
-        <div class="headerLower__left">
-          <h1 class="headerLower__logo">
-	          <a href="/">
-	            <img src="//mycom.hs.llnwd.net/e113/lib/tm/pc/img/common/logoMynavi.png" alt="マイナビ転職" />
-	          </a>
-          </h1>
-        </div><!--/headerLower__left -->
-      </div><!--/headerLower__content -->
-    </header>
-
-    <div class="container">
-      <section class="container__inner">
-        <div class="alert--multiline">
-          <p class="alert--multiline__title">ご利用の端末でCookieの設定が無効になっている可能性があります。</p>
-          <div class="alert--multiline__content">
-            <p class="alert--multiline__text">Cookieが有効になっているかどうかご確認ください。</p>
-            <br />
-            <p class="alert--multiline__text">※Cookieの設定方法はブラウザによって異なります。</p>
-            <p class="alert--multiline__text">詳細については、ご利用のブラウザ製造元へお問い合わせください。</p>
-          </div><!--/alert  multiline__content -->
-        </div><!--/alert  multiline -->
-     </section>
+<body>
+<div class="wrapper">
+    <div>
+        <form method="post" action="#" class="js__searchRecruitTop--form">
+            <input type="hidden" name="token"
+                   value="1562106677000b912e5fd48c327070a31320fb167774e6ec24a2a7b11149c3ff095ac30301d50"/>
+            <div>
+                <section class="modalChoice js__modal--jobCheckboxTop">
+                    <h2 class="modalChoice__heading">職種を選ぶ</h2>
+                    <div class="modalChoice__close"><a href="#" class="btnClose js__modal--close">閉じる</a></div>
+                    <!-- /modal__close -->
+                    <div class="modalChoice__content">
+                        <div class="modalChoice__list js__modal--menu">
+                        </div><!-- /modalChoice__list -->
+                        <div class="modalChoice__choiceContent">
+                            <section class="choiceContent js__modal--content">
+                            </section><!-- /choiceContent -->
+                        </div><!-- /modalChoice__choiceContent -->
+                    </div><!-- /modalChoice__content -->
+                    <div class="modalChoice__submit">
+                        <div class="modalChoice__result js__modal--selected"></div>
+                        <div class="modalChoice__btn">
+                            <button class="btnSecondaryM js__modal--apply">内容を反映する</button>
+                            <button class="btnDefaultM js__modal--other">勤務地も選択する</button>
+                        </div><!-- /modalChoice__btn -->
+                    </div><!-- /modalChoice__submit -->
+                </section><!-- /modalChoice -->
+                <![CDATA[ >
+                <script type="text/html" id="js__template--jobLarge">
+                    <a href="#" class="modalChoice__item" data-large-cd="<%= occLCd %>"><%= occLNm %><span
+                            class="labelSelected">選択中</span></a>
+                </script>
+                <!-- ]]> -->
+                <![CDATA[ >
+                <script type="text/html" id="js__template--jobSmall">
+                    <div class="js__selectCondition--large" data-large-cd="<%= occLInfo.occLCd %>"
+                         data-large-nm="<%= occLInfo.occLNm %>">
+                        <h3 class="choiceContent__title"><label class="checkbox"><input name="srOccCdList"
+                                                                                        value="<%= occLInfo.occLCd %>"
+                                                                                        type="checkbox"/><span
+                                class="checkbox__icon"></span><span class="checkbox__text"><%= occLInfo.occLNm %></span></label><span
+                                class="labelNumber"><%= occLInfo.occLCnt %></span></h3>
+                        <% _.each(occMList, function(occM){ %>
+                        <section class="choiceContent__section js__selectCondition--middle"
+                                 data-middle-cd="<%= occM.occMInfo.occMCd %>"
+                                 data-middle-nm="<%= occM.occMInfo.occMNm %>">
+                            <h4 class="choiceContent__sectionTitle"><label class="checkbox"><input name="srOccCdList"
+                                                                                                   value="<%= occM.occMInfo.occMCd %>"
+                                                                                                   type="checkbox"/><span
+                                    class="checkbox__icon"></span><span class="checkbox__text"><%= occM.occMInfo.occMNm %></span></label><span
+                                    class="labelNumber"><%= occM.occMInfo.occMCnt %></span></h4>
+                            <% if(occM.occSList.length){ %>
+                            <ul class="choiceContent__list js__selectCondition--small">
+                                <% _.each(occM.occSList, function(occS){ %>
+                                <li class="choiceContent__item"><label class="checkbox"><input name="srOccCdList"
+                                                                                               value="<%= occS.occSCd %>"
+                                                                                               type="checkbox"/><span
+                                        class="checkbox__icon"></span><span
+                                        class="checkbox__text"><%= occS.occSNm %></span></label></li>
+                                <% }); %>
+                            </ul><!-- /choiceContent__list -->
+                            <% } %>
+                        </section>
+                        <% }); %>
+                    </div>
+                </script>
+                <!-- ]]> -->
+            </div>
+            <div>
+                <section class="modalChoice js__modal--areaCheckboxTop">
+                    <h2 class="modalChoice__heading">勤務地を選ぶ</h2>
+                    <div class="modalChoice__close"><a href="#" class="btnClose js__modal--close">閉じる</a></div>
+                    <!-- /modal__close -->
+                    <div class="modalChoice__content">
+                        <div class="modalChoice__list js__modal--menu">
+                        </div><!-- /modalChoice__list -->
+                        <div class="modalChoice__choiceContent">
+                            <section class="choiceContent js__modal--content">
+                            </section><!-- /choiceContent -->
+                        </div><!-- /modalChoice__choiceContent -->
+                    </div><!-- /modalChoice__content -->
+                    <div class="modalChoice__submit">
+                        <div class="modalChoice__result js__modal--selected"></div>
+                        <div class="modalChoice__btn">
+                            <button class="btnSecondaryM js__modal--apply">内容を反映する</button>
+                            <button class="btnDefaultM js__modal--other">職種も選択する</button>
+                        </div><!-- /modalChoice__btn -->
+                    </div><!-- /modalChoice__submit -->
+                </section><!-- /modalChoice -->
+                <![CDATA[ >
+                <script type="text/html" id="js__template--areaLarge">
+                    <% _.each(areaList, function(area){ %>
+                    <a href="#" class="modalChoice__item" data-large-cd="<%= area.areaCd %>"><%= area.areaNm %><span
+                            class="labelSelected">選択中</span></a>
+                    <% }); %>
+                </script>
+                <!-- ]]> -->
+                <![CDATA[ >
+                <script type="text/html" id="js__template--areaSmall">
+                    <div class="js__selectCondition--large" data-large-cd="<%= area.areaCd %>"
+                         data-large-nm="<%= area.areaNm %>">
+                        <h3 class="choiceContent__title"><%= area.areaNm %><% if(area.areaCnt){ %><span
+                                class="labelNumber"><%= area.areaCnt %></span><% } %></h3>
+                        <% _.each(prefectureInfoDetailList, function(prefectureInfo){ %>
+                        <section class="choiceContent__section js__selectCondition--middle"
+                                 data-middle-cd="<%= prefectureInfo.prefecture.prefectureCd %>"
+                                 data-middle-nm="<%= prefectureInfo.prefecture.prefectureNm %>">
+                            <h4 class="choiceContent__sectionTitle"><label class="checkbox"><input
+                                    name="srPrefectureCdList" value="<%= prefectureInfo.prefecture.prefectureCd %>"
+                                    type="checkbox"/><span class="checkbox__icon"></span><span class="checkbox__text"><%= prefectureInfo.prefecture.prefectureNm %></span></label><%
+                                if(prefectureInfo.prefecture.prefectureCnt){ %><span class="labelNumber"><%= prefectureInfo.prefecture.prefectureCnt %></span><%
+                                } %></h4>
+                            <% if(prefectureInfo.major.length){ %>
+                            <ul class="choiceContent__list js__selectCondition--small">
+                                <% _.each(prefectureInfo.major, function(major){ %>
+                                <li class="choiceContent__item"><label class="checkbox"><input name="srPrefectureCdList"
+                                                                                               value="<%= major.cityCd %>"
+                                                                                               type="checkbox"/><span
+                                        class="checkbox__icon"></span><span
+                                        class="checkbox__text"><%= major.cityNm %></span></label></li>
+                                <% }); %>
+                            </ul><!-- /choiceContent__list -->
+                            <% } %>
+                            <% if(prefectureInfo.more.length){ %>
+                            <a href="#" class="choiceContent__more js__setCondition--more js__selectCondition--more">その他市町村</a>
+                            <ul class="choiceContent__list js__selectCondition--small">
+                                <% _.each(prefectureInfo.more, function(more){ %>
+                                <li class="choiceContent__item"><label class="checkbox"><input name="srPrefectureCdList"
+                                                                                               value="<%= more.cityCd %>"
+                                                                                               type="checkbox"/><span
+                                        class="checkbox__icon"></span><span
+                                        class="checkbox__text"><%= more.cityNm %></span></label></li>
+                                <% }); %>
+                            </ul><!-- /choiceContent__list -->
+                            <% } %>
+                        </section>
+                        <% }); %>
+                    </div>
+                </script>
+                <!-- ]]> -->
+            </div>
+        </form>
     </div>
+    <div class="container">
+        <div class="container__inner">
+            <form method="post" class="js__searchRecruit--form" action="/search/list/">
+                <input type="hidden" name="token"
+                       value="1562106677000b912e5fd48c327070a31320fb167774e6ec24a2a7b11149c3ff095ac30301d50"/>
+                <p class="headingPage">WEB・インターネット・ゲームの転職・求人情報</p>
+                <!--/card -->
+                <div class="searchTable">
+                    <input type="hidden" name="jobsearchType" value="4"/>
+                    <input type="hidden" name="searchType" value="8"/>
+                    <input type="hidden" name="specialId" value=""/>
+                    <input type="hidden" name="editionCd" value=""/>
+                    <input type="hidden" name="editionPcd" value=""/>
+                    <input type="hidden" name="srOnlyFlg" value=""/>
+                    <input type="hidden" name="srScoopFlg" value=""/>
+                    <input type="hidden" name="srPresidentMsgFlg" value=""/>
+                    <input type="hidden" name="srRecruitMsgFlg" value=""/>
+                    <input type="hidden" name="srEmployeeMsgFlg" value=""/>
+                    <input type="hidden" name="srPhotoRptFlg" value=""/>
+                    <input type="hidden" name="srPrFlg" value=""/>
+                    <input type="hidden" name="hopeMatchFlg" value=""/>
+                    <table class="searchTable__content">
+                        <tr>
+                            <td class="searchTable__body">
+                                <a href="#" class="btnAddS js__accordion--trigger">さらに詳しい条件で検索する</a>
+                                <div class="btnBox js__searchRecruit">
+                                    <button class="btnSearch">
+                                        <span class="iconFont--search"></span>
+                                        <span class="text">条件に合う求人
+                    <span class="textAttentionL">
+                    <em>
+                      <span class="js__searchRecruit--count">421</span>
+                    </em>
+                    <span class="btnSearch__text">件</span>
+                    </span>
+                    を検索する</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </form>
+        </div><!--/container__inner -->
+        <div class="result">
+            <div class="result__info">
+                <p class="result__noApplicationNum"><span class="textSup">WEB・インターネット・ゲームの転職・求人情報</span></p>
+                <p class="result__num">
+                    <em>421</em><span>件</span>
+                </p>
+                <p class="result__noApplicationNum"><span class="textSup">1〜50件目を表示中</span></p>
+            </div><!-- /result__info -->
+        </div><!-- /result -->
+        <form method="post" name="pageNavi_form" action="/search/list/">
+            <div class="container__inner">
+                <input type="hidden" name="token"
+                       value="1562106677000b912e5fd48c327070a31320fb167774e6ec24a2a7b11149c3ff095ac30301d50"/>
+                <input type="hidden" name="srOccCdList" value="1G"/>
+                <input type="hidden" name="srNewFlg" value=""/>
+                <input type="hidden" name="srUpdFlg" value=""/>
+                <input type="hidden" name="srNearPublishEndFlg" value=""/>
+                <input type="hidden" name="srOccExpCls" value=""/>
+                <input type="hidden" name="srIndExpCls" value=""/>
+                <input type="hidden" name="srStockCls" value=""/>
+                <input type="hidden" name="srAcceptManager" value=""/>
+                <input type="hidden" name="srFirstIncomeCd" value=""/>
+                <input type="hidden" name="srFreeSearchCd" value="4"/>
+                <input type="hidden" name="srFreeSearchKeyword" value=""/>
+                <input type="hidden" name="srEmployeeNumberMinId" value=""/>
+                <input type="hidden" name="srEmployeeNumberMaxId" value=""/>
+                <input type="hidden" name="srFoundationMinCd" value=""/>
+                <input type="hidden" name="srFoundationMaxCd" value=""/>
+                <input type="hidden" name="jobsearchType" value="4"/>
+                <input type="hidden" name="searchType" value="8"/>
+                <input type="hidden" name="specialId" value=""/>
+                <input type="hidden" name="editionCd" value=""/>
+                <input type="hidden" name="editionPcd" value=""/>
+                <input type="hidden" name="srOnlyFlg" value=""/>
+                <input type="hidden" name="srScoopFlg" value=""/>
+                <input type="hidden" name="srPresidentMsgFlg" value=""/>
+                <input type="hidden" name="srRecruitMsgFlg" value=""/>
+                <input type="hidden" name="srEmployeeMsgFlg" value=""/>
+                <input type="hidden" name="srPhotoRptFlg" value=""/>
+                <input type="hidden" name="srPrFlg" value=""/>
+                <input type="hidden" name="hopeMatchFlg" value=""/>
+                <input type="hidden" name="srMatchCareerFlg" value=""/>
+                <input type="hidden" name="srMatchAptitudeFlg" value=""/>
+                <nav class="pager">
+                    <ul class="pager__list js__pageSubmit">
+                        <li class="pager__item--active">
+                            <a href="javascript:changePageNo(1)">1</a>
+                        </li>
+                        <li class="pager__item">
+                            <a href="javascript:changePageNo(2)">2</a>
+                        </li>
+                        <li class="pager__item">
+                            <a href="javascript:changePageNo(3)">3</a>
+                        </li>
+                        <li class="pager__item">
+                            <a href="javascript:changePageNo(4)">4</a>
+                        </li>
+                        <li class="pager__item">
+                            <a href="javascript:changePageNo(5)">5</a>
+                        </li>
+                        <li class="pager__item">…</li>
+                        <li class="pager__next">
+                            <a class="iconFont--arrowLeft" href="javascript:changePageNo(2)">次へ</a>
+                        </li>
+                    </ul>
+                    <p class="pager__text">1件〜50件（全421件中）</p>
+                </nav>
+                <div class="cassetteRecruit">
+                    <div class="cassetteRecruit__content">
+                        <div class="cassetteRecruitRecommend__label">新着</div>
+                        <section class="cassetteRecruit__heading">
+                            <h3 class="cassetteRecruit__name">株式会社ユークス
+                                |【JASDAQ上場】★100％自社内開発★年休120日★土日休★コンシューマ機中心★賞与年2回</h3>
+                            <p class="cassetteRecruit__copy">
+                                <a target="_blank"
+                                   href="/jobinfo-24727-1-24-1/?ty=0&amp;searchId=1189663011&amp;pageNum=1&amp;showNo=1">【ゲームプログラマー】★SwitchやPS4等のゲームソフト開発</a>
+                                <span class="labelEmploymentStatus">正社員</span>
+                            </p>
+                        </section>
+                        <!-- /cassetteRecruit__heading -->
+                        <div class="cassetteRecruit__detail">
+                            <ul class="cassetteRecruit__attribute">
+                                <li class="cassetteRecruit__attributeLabel">
+                                    <span class="labelCondition">職種・業種未経験OK</span>
+                                </li>
+                                <li class="cassetteRecruit__attributeLabel">
+                                    <span class="labelCondition">上場</span>
+                                </li>
+                                <li class="cassetteRecruit__attributeLabel">
+                                    <span class="labelCondition">急募</span>
+                                </li>
+                                <li class="cassetteRecruit__attributeLabel">
+                                    <span class="labelCondition">転勤なし</span>
+                                </li>
+                                <li class="cassetteRecruit__attributeLabel">
+                                    <span class="labelCondition">学歴不問</span>
+                                </li>
+                                <li class="cassetteRecruit__attributeLabel">
+                                    <span class="labelCondition">完全週休2日制</span>
+                                </li>
+                                <li class="cassetteRecruit__attributeLabel">
+                                    <span class="labelCondition">第二新卒歓迎</span>
+                                </li>
+                                <li class="cassetteRecruit__attributeLabelLast">
+                                    <span class="labelWoman">女性のおしごと掲載中</span>
+                                </li>
+                            </ul>
+                            <a class="cassetteRecruit__point" target="_blank"
+                               href="/jobinfo-24727-1-24-1/?ty=0&amp;searchId=1189663011&amp;pageNum=1&amp;showNo=1">
+                                <img width="900" height="150" alt=""
+                                     src="//mycom.hs.llnwd.net/e113/job_img/search/24727/D8C8765F-DDB0-B07A-42ED3EB3C491AAD8.jpg"/>
+                            </a>
+                            <div class="cassetteRecruit__main">
+                                <table class="tableCondition">
+                                    <tbody>
+                                    <tr>
+                                        <th class="tableCondition__head">仕事内容</th>
+                                        <td class="tableCondition__body">《100％自社内開発！有名タイトル多数！》◆コンシューマー機(PS4・Xbox
+                                            One・Switch等)を中心にゲームプログラミングをお任せ ※企画にも参加可能！
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="tableCondition__head">求める人材</th>
+                                        <td class="tableCondition__body">《20～40代前半のメンバーが活躍中！》 ◆学歴不問
+                                            ◆プログラマーとして何らかの実務経験をお持ちの方 ※ゲーム業界が初めての方もご相談ください
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="tableCondition__head">勤務地</th>
+                                        <td class="tableCondition__body">★大阪本社・横浜開発室で積極採用！ ★原則として転勤なし ★U・Iターンも歓迎！
+                                            ★勤務地は希望を…
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="tableCondition__head">給与</th>
+                                        <td class="tableCondition__body">【チーフプログラマー】
+                                            月給 30万1,860円以上 ＋（諸手当別途支給）
+                                            【プログラマー】
+                                            （横浜）月給 …
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="tableCondition__head">初年度年収</th>
+                                        <td class="tableCondition__body">300万円～500万円</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <ul>
+                                    <li>
+                                        <a class="linkArrowS" target="_blank"
+                                           href="/jobinfo-24727-1-24-1/msg/?ty=0&amp;searchId=1189663011&amp;pageNum=1&amp;showNo=1">企業からのメッセージを見る</a>
+                                    </li>
+                                </ul>
+                            </div><!-- /cassetteRecruit__main -->
+                            <!-- /cassetteRecruit__mainM -->
+                            <!-- /cassetteRecruit__mainL -->
+                            <!-- /cassetteRecruit__mainLL -->
+                            <div class="cassetteRecruit__img">
+                                <a class="cassetteRecruit__point" target="_blank"
+                                   href="/jobinfo-24727-1-24-1/?ty=0&amp;searchId=1189663011&amp;pageNum=1&amp;showNo=1">
+                                    <img width="200" height="150" alt=""
+                                         src="//mycom.hs.llnwd.net/e113/job_img/search/24727/D8C860DD-AA8F-CD02-C2C6333D6FE7432C.jpg"/>
+                                </a>
+                            </div><!-- /cassetteRecruit__img -->
+                            <!-- /cassetteRecruit__imgM -->
+                            <!-- /cassetteRecruit__imgS -->
+                        </div>
+                        <!-- /cassetteRecruit__detail -->
+                        <div class="cassetteRecruit__bottom">
+                            <a class="linkArrowS" target="_blank"
+                               href="/jobinfo-24727-1-24-1/?ty=0&amp;searchId=1189663011&amp;pageNum=1&amp;showNo=1">詳細を見る</a>
+                            <button class="btnInterst js__popup" data-job-key="1250570" data-ty="0"
+                                    onclick="ga_searchList_list(&#39;/jobinfo-24727-1-24-1/?ty=0&amp;searchId=1189663011&amp;pageNum=1&amp;showNo=1&#39;);">
+                                気になる
+                            </button>
+                            <p class="cassetteRecruit__updateDate">
+                                情報更新日： <span>2019/06/28</span>
+                            </p>
+                            <p class="cassetteRecruit__endDate">
+                                掲載終了予定日： <span>2019/08/08</span>
+                            </p>
+                        </div>
+                        <!-- /cassetteRecruit__bottom -->
+                    </div>
+                </div>
+                <div class="cassetteRecruit">
+                    <div class="cassetteRecruit__content">
+                        <div class="cassetteRecruitRecommend__label">新着</div>
+                        <section class="cassetteRecruit__heading">
+                            <h3 class="cassetteRecruit__name">リアルタイムエクスプローラー株式会社 | ◆年間休日125日以上◆残業月20時間以内◆20代の男女が活躍中</h3>
+                            <p class="cassetteRecruit__copy">
+                                <a target="_blank"
+                                   href="/jobinfo-253537-1-2-1/msg/?ty=0&amp;searchId=1189663011&amp;pageNum=1&amp;showNo=2">未経験から同期と一緒にスタート【テストスタッフ】土日祝休み</a>
+                                <span class="labelEmploymentStatus">正社員</span>
+                            </p>
+                        </section>
+                        <!-- /cassetteRecruit__heading -->
+                        <div class="cassetteRecruit__detail">
+                            <ul class="cassetteRecruit__attribute">
+                                <li class="cassetteRecruit__attributeLabel">
+                                    <span class="labelCondition">職種・業種未経験OK</span>
+                                </li>
+                                <li class="cassetteRecruit__attributeLabel">
+                                    <span class="labelCondition">転勤なし</span>
+                                </li>
+                                <li class="cassetteRecruit__attributeLabel">
+                                    <span class="labelCondition">学歴不問</span>
+                                </li>
+                                <li class="cassetteRecruit__attributeLabel">
+                                    <span class="labelCondition">完全週休2日制</span>
+                                </li>
+                                <li class="cassetteRecruit__attributeLabel">
+                                    <span class="labelCondition">第二新卒歓迎</span>
+                                </li>
+                                <li class="cassetteRecruit__attributeLabelLast">
+                                    <span class="labelWoman">女性のおしごと掲載中</span>
+                                </li>
+                            </ul>
+                            <a class="cassetteRecruit__point" target="_blank"
+                               href="/jobinfo-253537-1-2-1/msg/?ty=0&amp;searchId=1189663011&amp;pageNum=1&amp;showNo=2">
+                                <img width="900" height="150" alt=""
+                                     src="//mycom.hs.llnwd.net/e113/job_img/search/253537/8B033889-08B6-CDFA-7E6D2DB38EF469C1.jpg"/>
+                            </a>
+                            <div class="cassetteRecruit__main">
+                                <table class="tableCondition">
+                                    <tbody>
+                                    <tr>
+                                        <th class="tableCondition__head">仕事内容</th>
+                                        <td class="tableCondition__body">
+                                            【あなたのペースに合わせて専任講師がサポート】★社内研修でビジネスマナー・PCの使い方から学べます ★リリース前のゲームやアプリに触れる！
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="tableCondition__head">求める人材</th>
+                                        <td class="tableCondition__body">
+                                            【「ITって何？」そんなあなたも大丈夫】★ゲーム・アニメ・アイドル好きなど、楽しい仲間と学べる♪ ★元事務職や販売スタッフなど未経験スタート95%
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="tableCondition__head">勤務地</th>
+                                        <td class="tableCondition__body">【転勤なし】 本社（渋谷区神宮前）、または各プロジェクト先（東京、神奈川、千葉、埼玉）
+                                            ※勤務先は…
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="tableCondition__head">給与</th>
+                                        <td class="tableCondition__body">月給：18万円〜80万円（一律手当含む）+インセンティブ
+                                            ※年収例：600万円（経験3年）
+                                            ※経験及びスキル…
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="tableCondition__head">初年度年収</th>
+                                        <td class="tableCondition__body">250万円～600万円</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <ul>
+                                    <li>
+                                        <a class="linkArrowS" target="_blank"
+                                           href="/jobinfo-253537-1-2-1/msg/?ty=0&amp;searchId=1189663011&amp;pageNum=1&amp;showNo=2">企業からのメッセージを見る</a>
+                                    </li>
+                                </ul>
+                            </div><!-- /cassetteRecruit__main -->
+                            <!-- /cassetteRecruit__mainM -->
+                            <!-- /cassetteRecruit__mainL -->
+                            <!-- /cassetteRecruit__mainLL -->
+                            <div class="cassetteRecruit__img">
+                                <a class="cassetteRecruit__point" target="_blank"
+                                   href="/jobinfo-253537-1-2-1/msg/?ty=0&amp;searchId=1189663011&amp;pageNum=1&amp;showNo=2">
+                                    <img width="200" height="150" alt=""
+                                         src="//mycom.hs.llnwd.net/e113/job_img/search/253537/8B439C36-D919-50FE-87C06534FFBE9498.jpg"/>
+                                </a>
+                            </div><!-- /cassetteRecruit__img -->
+                            <!-- /cassetteRecruit__imgM -->
+                            <!-- /cassetteRecruit__imgS -->
+                        </div>
+                        <!-- /cassetteRecruit__detail -->
+                        <div class="cassetteRecruit__bottom">
+                            <a class="linkArrowS" target="_blank"
+                               href="/jobinfo-253537-1-2-1/msg/?ty=0&amp;searchId=1189663011&amp;pageNum=1&amp;showNo=2">詳細を見る</a>
+                            <button class="btnInterst js__popup" data-job-key="1301643" data-ty="0"
+                                    onclick="ga_searchList_list(&#39;/jobinfo-253537-1-2-1/msg/?ty=0&amp;searchId=1189663011&amp;pageNum=1&amp;showNo=2&#39;);">
+                                気になる
+                            </button>
+                            <p class="cassetteRecruit__updateDate">
+                                情報更新日： <span>2019/06/28</span>
+                            </p>
+                            <p class="cassetteRecruit__endDate">
+                                掲載終了予定日： <span>2019/08/08</span>
+                            </p>
+                        </div>
+                        <!-- /cassetteRecruit__bottom -->
+                    </div>
+                </div>
 
-    <footer class="footerLower">
-      <div class="footerLower__content">
-        <div class="footerLower__corporate">
-          <p class="footerLower__logo">
-            <a href="http://www.mynavi.jp/" target="_blank">
-                <img src="/img/2012/footer/image_02.png" width="100" height="13" alt="株式会社マイナビ" />
-            </a>
-          </p>
-          <p class="footerLower__copyright">
-            <img src="/img/2012/footer/text_07.gif" width="150" height="10" alt="Copyright &copy; Mynavi Corporation" />
-          </p>
-        </div>
-      </div><!--/footerLower__content -->
-    </footer>
-  </div>
+                <div class="result">
+                    <div class="result__info">
+                        <p class="result__noApplicationNum"><span class="textSup">WEB・インターネット・ゲームの転職・求人情報</span></p>
+                        <p class="result__num">
+                            <em>
+                                <span class="js__searchRecruit--count">421</span>
+                            </em>
+                            <span>件</span>
+                        </p>
+                        <p class="result__noApplicationNum"><span class="textSup">1〜50件目を表示中</span></p>
+                    </div><!-- /result__info -->
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 </body>
 </html>
