@@ -16,9 +16,11 @@ class JobOperator(scrapy.Spider):  # 继承scrapy.Spider类
     page_size = 50  # 每页50条记录
     url_tpl = 'https://next.rikunabi.com/rnc/docs/cp_s00700.jsp?jb_type_long_cd=0500000000&jb_type_long_cd=1200000000&curnum='
     index = 0
-    dba = DBA()
+    dba = ''
 
     def start_requests(self):
+        return
+        self.dba = DBA()
         yield scrapy.Request(self.url_tpl + '1', callback=self.get_sum)
 
     # 获取总记录数，计算出总页数，并打开第一页的中的50条详情记录、循环获取2-count页中的数据

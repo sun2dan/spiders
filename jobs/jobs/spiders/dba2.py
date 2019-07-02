@@ -33,7 +33,7 @@ class DBA2():
             conn.execute(sql)
         except:
             print('table %s already exists' % table_name)
-            conn.execute('DROP TABLE ' % table_name)
+            conn.execute('DROP TABLE ' + table_name)
             conn.execute(sql)
 
         conn.commit()
