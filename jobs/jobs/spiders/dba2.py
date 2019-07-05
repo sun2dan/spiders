@@ -61,7 +61,7 @@ class DBA2():
 
     def insert(self, data):
         conn = sqlite3.connect(self.db_name)
-        sql = '''insert into %s (title, content, claim, addr, salary, worktime, holiday, welfare, during, tags, company, desc, url, ntype) values ('{title}', '{content}', '{claim}', '{addr}', '{salary}', '{worktime}', '{holiday}', '{welfare}', '{during}', '{tags}', '{company}', '{desc}', '{url}', '{ntype}' )''' % self.table_name.format(
+        sql = 'insert into ' + self.table_name + ''' (title, content, claim, addr, salary, worktime, holiday, welfare, during, tags, company, desc, url, ntype) values ('{title}', '{content}', '{claim}', '{addr}', '{salary}', '{worktime}', '{holiday}', '{welfare}', '{during}', '{tags}', '{company}', '{desc}', '{url}', '{ntype}' )'''.format(
             **data)
         # print(sql)
         conn.execute(sql)
