@@ -3,13 +3,16 @@ import sqlite3
 
 class DBA():
     db_name = 'job.db'
+    table_name = ''
 
-    def __init__(self):
+    def __init__(self, table_name='raw'):
+        self.table_name = table_name
         conn = sqlite3.connect(self.db_name)
         print("Open database successfully")
+        table_name = self.table_name
 
         sql = '''
-            CREATE TABLE "raw" (
+            CREATE TABLE "%s" (
                 "id"	    INTEGER PRIMARY KEY AUTOINCREMENT,
                 "title"	    TEXT,   
                 "content"	TEXT,   -- 仕事の内容
@@ -26,16 +29,16 @@ class DBA():
                 "url"       TEXT,   -- 数据来源url
                 "ntype"     TEXT,   -- ntype 类型
                 "createdTime" DateTime DEFAULT (datetime('now', 'localtime'))
-            )'''
+            )''' % table_name
         try:
             conn.execute(sql)
         except:
-            print('table raw already exists')
-            conn.execute('DROP TABLE raw')
+            print('table %s already exists' % table_name)
+            conn.execute('DROP TABLE ' + table_name)
             conn.execute(sql)
 
         conn.commit()
-        print('table raw created')
+        print('table %s created' % table_name)
 
     def get_empty_obj(self):
         data = {}
@@ -59,7 +62,7 @@ class DBA():
 
     def insert(self, data):
         conn = sqlite3.connect(self.db_name)
-        sql = '''insert into raw (title, content, claim, addr, salary, worktime, holiday, welfare, during, tags, company, desc, url, ntype) values ('{title}', '{content}', '{claim}', '{addr}', '{salary}', '{worktime}', '{holiday}', '{welfare}', '{during}', '{tags}', '{company}', '{desc}', '{url}', '{ntype}' )'''.format(
+        sql = 'insert into ' + self.table_name + ''' (title, content, claim, addr, salary, worktime, holiday, welfare, during, tags, company, desc, url, ntype) values ('{title}', '{content}', '{claim}', '{addr}', '{salary}', '{worktime}', '{holiday}', '{welfare}', '{during}', '{tags}', '{company}', '{desc}', '{url}', '{ntype}' )'''.format(
             **data)
         # print(sql)
         conn.execute(sql)

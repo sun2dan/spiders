@@ -1,8 +1,7 @@
 from scrapy import cmdline
-import re
+import re, time
 
 
 
-
-# cmdline.execute("scrapy crawl rikunabi".split())
 cmdline.execute("scrapy crawl tenshoku".split())
+#cmdline.execute("scrapy crawl rikunabi".split())

@@ -19,7 +19,8 @@ class JobOperator(scrapy.Spider):  # 继承scrapy.Spider类
     dba = ''
 
     def start_requests(self):
-        return
+        # TODO
+        # return
         self.dba = DBA()
         yield scrapy.Request(self.url_tpl + '1', callback=self.get_sum)
 

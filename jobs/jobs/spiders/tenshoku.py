@@ -4,7 +4,7 @@ import math, re, os, sys, random, time
 path = os.getcwd()
 # print(path)
 sys.path.append(path + '/jobs/spiders/')
-from dba2 import DBA2
+from dba import DBA
 
 class JobOperator2(scrapy.Spider):  # 继承scrapy.Spider类
     # 测试相关
@@ -17,7 +17,7 @@ class JobOperator2(scrapy.Spider):  # 继承scrapy.Spider类
     url_tpl = 'https://tenshoku.mynavi.jp/search/list/?pageNum='
     index = 0
     formdata = {
-        'token': '15621077260008687d73c2611519694229fd107f1c82dda8c52a5c5920734aad4847b619916ac',
+        'token': '15625667800006e64daa66d5421cf26cb7eb673344dcd8c6170fdff64ba200bdbb639b8f2913b',
         # 'srOccCdList': '16',
         'srOccCdList': '16,1G',
         'srFreeSearchCd': '4',
@@ -33,18 +33,20 @@ class JobOperator2(scrapy.Spider):  # 继承scrapy.Spider类
         '_tdim': '3af5f71e-d5be-420d-bbaf-9aa239a4b79d', 'visitor_id92712': '440691943',
         'visitor_id92712-hash': '8c5961cc3f8adcd5545538944c407d67f3d31d9d2ee027386a8158a445838fa257f72de1cbfc4b4300c2296a3f7423dc35f89a30',
         'cto_lwid': 'e0f9d72e-07ea-4754-aa0f-a5778eeaa78a', '_fbp': 'fb.1.1561359387554.752698291',
-        'BIGipServertnwebap_80_pool': '1512577452.20480.0000', '_gid': 'GA1.2.1932280237.1562058924',
-        'BIGipServertnweb_8008_pool': '556276140.18463.0000', 'xyz_cr_144_et_100': 'NaN&cr=144&et=100',
+        'BIGipServertnwebap_80_pool': '1512577452.20480.0000', 'BIGipServertnweb_8008_pool': '556276140.18463.0000',
         'Apache': '111.200.23.40.1562059098720716', 'BIGipServertnweb_80_pool': '539498924.20480.0000',
-        'adlpo': 'PC#1556583681828-944104-454345#1569837967|check#true#1562062026',
-        '_adp_uid': 'BwCFEgAKkQHMIWfQ5XYEN_KTTzP88HFx', 'JSESSIONID': '4EF398E4B0D1CFE1937D32BE835D09F9',
-        '_dc_gtm_UA-23072088-3': '1', '_dc_gtm_UA-23072088-1': '1', '_dc_gtm_UA-23072088-2': '1'
+        '_gid': 'GA1.2.1752058505.1562551112', '_adp_uid': 'BwCFEgAKkQHMIWfQ5XYEN_KTTzP88HFx',
+        'adlpo': 'PC#1556583681828-944104-454345#1570342134|check#true#1562566190',
+        'JSESSIONID': 'CF146EE921D3984C22BD13C933A20AFB', '_dc_gtm_UA-23072088-3': '1', '_dc_gtm_UA-23072088-1': '1',
+        '_dc_gtm_UA-23072088-2': '1', 'xyz_cr_144_et_100': '=NaN&cr=144&et=100&ap='
     }
 
-    dba2 = DBA2()
+    dba = DBA('raw2')
 
     def start_requests(self):
-        yield scrapy.FormRequest(self.url_tpl + '1',
+        # TODO
+        # return
+        yield scrapy.FormRequest(self.url_tpl,
                                  formdata=self.formdata, cookies=self.cookies,
                                  callback=self.get_sum)
 
@@ -52,11 +54,14 @@ class JobOperator2(scrapy.Spider):  # 继承scrapy.Spider类
     def get_sum(self, response):
         count = response.css('.result__num em::text').extract_first()
         page_count = math.ceil(int(count) / self.page_size)
+        # print(count, page_count)
 
         for n in range(1, page_count + 1):
+            # TODO 一遍抓取之后，出现了某些页码对应的页面加载失败的情况，这种情况采用手动收集重新抓取的方法来解决
+            # for n in [2,3, 19, 20, 21, 22]:
             if self.debug and n > 2: break  # debug
             res_url = self.url_tpl + str(page_count + 1 - n)
-            time.sleep(1)
+            # time.sleep(1)
             yield scrapy.FormRequest(res_url, formdata=self.formdata, cookies=self.cookies,
                                      callback=self.get_list)
 
@@ -77,10 +82,11 @@ class JobOperator2(scrapy.Spider):  # 继承scrapy.Spider类
             format_url = re.sub(r'(\/msg\/)|(\/adv1\/)|(\\+)', '\/', detail_url)
             format_url = re.sub(r'\\+', '', format_url)
             idx += 1
+            # time.sleep(2)
             yield scrapy.Request(url=format_url, callback=self.get_detail)
 
     def get_detail(self, response):
-        data = self.dba2.get_empty_obj()
+        data = self.dba.get_empty_obj()
 
         table = response.css('.jobOfferTable')[0]
         theads = table.css('th.jobOfferTable__head::text').extract()  # .re(r'[\s\S]+')  # 标题
@@ -136,7 +142,7 @@ class JobOperator2(scrapy.Spider):  # 继承scrapy.Spider类
 
         data['desc'] = ''.join(desc_arr)
 
-        self.dba2.insert(data)
+        self.dba.insert(data)
 
     # 内容格式化
     def format_cont(self, cont):
