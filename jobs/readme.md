@@ -43,9 +43,8 @@ get请求可直接获取到数据，列表类型分为六类：
 - url: https://next.rikunabi.com/rnc/docs/cp_s01880.jsp?fr=cp_s00700&rqmt_id=102599351004&list_disp_no=801&leadtc=n_ichiran_cst_bt_ttl
 - 备注：详情页连接中的 &amp; 需要转义为 &
 
-
 ### https://tenshoku.mynavi.jp
-需要模拟 form 表单提交
+需要模拟 form 表单提交，详情页只有一种类型
 
 
 ## 表结构
@@ -68,8 +67,40 @@ url：数据来源url
 createdTime：该记录的创建时间
 ```
 
+## 步骤
+### 1.收集数据
+```
+python init.py
+```
+分别放开 init.py 中的注释，采集rikunabi和tenshoku两个网站的数据，分别放入raw和raw2表中
 
+### 2.合并数据 
+``` sql 
+CREATE TABLE "total" (
+            "id"	    INTEGER PRIMARY KEY AUTOINCREMENT,
+            "title"	    TEXT,   
+            "content"	TEXT,   -- 仕事の内容
+            "claim"	    TEXT,   -- 求めている人材
+            "addr"	    TEXT,   -- 勤務地
+            "salary"	TEXT,   -- 給与
+            "worktime"	TEXT,   -- 勤務時間
+            "holiday"	TEXT,   -- 休日・休暇
+            "welfare"	TEXT,   -- 待遇・福利厚生
+            "during"	TEXT,
+            "tags"	    TEXT,
+            "company"	TEXT,
+            "desc"      TEXT, 
+            "url"       TEXT,   -- 数据来源url
+            "ntype"     TEXT,   -- ntype 类型
+            "createdTime" DateTime DEFAULT (datetime('now', 'localtime'))
+)
+insert into total (title, content, claim, addr, salary, worktime, holiday, welfare, during, tags, company, desc, url, ntype, createdTime) select title, content, claim, addr, salary, worktime, holiday, welfare, during, tags, company, desc, url, ntype, createdTime from raw
+insert into total (title, content, claim, addr, salary, worktime, holiday, welfare, during, tags, company, desc, url, ntype, createdTime) select title, content, claim, addr, salary, worktime, holiday, welfare, during, tags, company, desc, url, ntype, createdTime from raw2
+```
+将raw和raw2表中的数据合并到total表中，用于分析数据；
 
+### 3.分析数据
+during为招聘时间，没有采集到招聘时间的数据，认为是比较老的数据，不统计这些数据
 
 
 这是我的第一个 scrapy 项目，下面是一些 scrapy 的备忘信息：
