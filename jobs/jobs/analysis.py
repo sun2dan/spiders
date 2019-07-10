@@ -7,7 +7,7 @@ from wordcloud import WordCloud
 
 db_name = '../job.db'
 # 公共where条件（有招聘时间）
-where = ' where during <> ""'
+where = ' where 1=1 and during<>"" ' # and ntype<>"ten"
 
 def main():
     list = get_all()
@@ -36,7 +36,7 @@ def basic_analysis(list):
             count_map[count] = [name]
         else:
             count_map[count].append(name)
-    print('共有 {} 家公司招聘，占总记录数的 {:.2f}%'.format(company_len, company_len / all_len * 100))
+    print('{} 家公司发布了 {} 条招聘信息，平均每家发布 {:.2f} 条信息'.format(company_len, all_len, all_len / company_len))
     len1 = len(count_map[1])
     print('有 {} 家公司只发布了一条信息，占总公司数的 {:.2f}%'.format(len1, len1 / company_len * 100))
     max_count = 1
@@ -54,11 +54,11 @@ def basic_analysis(list):
     print('有 {} 家公司在东京/在东京有分公司，占总公司数的 {:.2f}%'.format(n, n / company_len * 100))
 
     # 多少公司不限学历
-    sql = 'select count(id) from total {} and claim like "%学歴不問%" or claim like "%学歴・%不問%"'.format(where)
+    sql = 'select count(id) from total {} and (claim like "%学歴不問%" or claim like "%学歴・%不問%")'.format(where)
     cur.execute(sql)
     res = cur.fetchone()
     n = res[0]
-    print('{} 个招聘明确标注了不限学历，占总记录数的 {:.2f}%'.format(n, n / all_len * 100))
+    print('{} 个招聘明确标注了不限学历，占总数的 {:.2f}%'.format(n, n / all_len * 100))
 
     conn.close()
 
@@ -127,7 +127,7 @@ def format_addr(str):
     s1 = strQ2B(str)
     s1 = re.sub(r'<[\w\d_\-!.\'\"\/\s=]+>', ',', s1)
     # s1 = re.sub(r'(本社)|(リクナビNEXT上の地域分類では……)|(【[\u0800-\u4e00\u4e00-\u9fa5\d\w.\\\/◎・]+】)', ',', s1)
-    s1 = re.sub(r'(本社)|(リクナビNEXT上の地域分類では……)|(交通手段)|(交通)|(アクセス)|(転勤なし)', ',', s1)
+    s1 = re.sub(r'(本社)|(リクナビNEXT上の地域分類では……)|(交通手段)|(交通)|(アクセス)|(転勤なし)|(各線)', ',', s1)
     return s1
 
 # 全角转半角
