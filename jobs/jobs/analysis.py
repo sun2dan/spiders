@@ -5,9 +5,16 @@ import sqlite3
 os.environ['FONT_PATH'] = '/System/Library/Fonts/ヒラギノ明朝 ProN.ttc'
 from wordcloud import WordCloud
 
+DEBUG = True  # 调试，会生成词云的原始文件，便于和结果对比，查找原始词汇
 db_name = '../job.db'
 # 公共where条件（有招聘时间）
-where = ' where 1=1 and during<>"" ' # and ntype<>"ten"
+where = ' where 1=1 and during<>"" '  # 默认为rikunabi中的新数据 + tenshoku中的数据
+
+# where 1=1 # 所有数据
+# where 1=1 and during<>""  # rikunabi中的新数据 + tenshoku中的数据
+# where 1=1 and during<>"" and ntype<>"ten"  # rikunabi 中的新数据
+# where 1=1 and ntype<>"ten"  # rikunabi 中的所有数据
+# where 1=1 and ntype="ten"  # tenshoku 中的数据
 
 def main():
     list = get_all()
@@ -65,32 +72,33 @@ def basic_analysis(list):
 # 技能词云
 def wordcloud_skill(list):
     name = 'skill'
-    file_path = 'src/%s.txt' % name
     img_path = 'src/%s.png' % name
-    with open(file_path, "w") as f:  # w-覆盖
-        for row in list:
-            f.write(format_skill(row[2]) + '\n')  # content 工作内容
-            f.write(format_skill(row[3]) + '\n')  # claim 任职要求
-            f.write(format_skill(row[10]) + '\n\n')  # tags 标签
-        f.close()
-    create_wordcloud(file_path, img_path)
+    skill_arr = []
+
+    for row in list:
+        skill_arr.append(format_skill(row[2]))  # content 工作内容
+        skill_arr.append(format_skill(row[3]))  # claim 任职要求
+        skill_arr.append(format_skill(row[10]) + '\n')  # tags 标签
+    skill_str = '\n'.join(skill_arr)
+    create_wordcloud(skill_str, img_path)
+    write_file(name, skill_str, list, [2, 3, 10])
 
 # 工作地点词云
 def wordcloud_addr(list):
     name = 'addr'
-    file_path = 'src/%s.txt' % name
     img_path = 'src/%s.png' % name
-    with open(file_path, "w") as f:  # w-覆盖
-        for row in list:
-            f.write(format_addr(row[4]) + '\n')  # addr
-        f.close()
-    create_wordcloud(file_path, img_path)
+    addr_arr = []
+    for row in list:
+        addr_arr.append(format_addr(row[4]))  # addr 地址
+    addr_str = '\n'.join(addr_arr)
+    create_wordcloud(addr_str, img_path)
+    write_file(name, addr_str, list, [4])
 
 # 创建词云 + 保存图片
-def create_wordcloud(file_path, img_path):
+def create_wordcloud(text, img_path):
     # 官方demo代码修改
     d = path.dirname(__file__) if "__file__" in locals() else os.getcwd()
-    text = open(path.join(d, file_path)).read()
+    # text = open(path.join(d, file_path)).read()
     wordcloud = WordCloud().generate(text)
 
     # Display the generated image:  # the matplotlib way:
@@ -109,6 +117,26 @@ def create_wordcloud(file_path, img_path):
 
     wordcloud.to_file(img_path)
 
+# 将原始文本和过滤之后的文本存储到文件中，方便查看对比
+def write_file(name, text, list, idx_arr):
+    if not DEBUG: return
+    file_raw = 'src/%s.txt' % (name + '_raw')
+    file_filter = 'src/%s.txt' % (name + '_filter')
+
+    # 过滤之后的数据 src/add_filter.txt
+    with open(file_filter, "w") as f:  # w-覆盖
+        f.write(text)
+        f.close()
+
+    # 原始数据文件 src/add_raw.txt，如果存在就不重写，因为原始数据没有经过处理，不用每次重新生成
+    if os.path.exists(file_raw): return
+    with open(file_raw, "w") as f:
+        for row in list:
+            for idx in idx_arr:
+                f.write(row[idx] + '\n')
+            f.write('\n')
+        f.close()
+
 # 格式化技能内容字符串
 # 去html标签、全角转半角、去除汉字/日文，去掉NEW这类固定的标签文案
 def format_skill(str):
@@ -122,12 +150,14 @@ def format_skill(str):
     return s4
 
 # 格式化地址内容字符串
-# 去html标签
 def format_addr(str):
     s1 = strQ2B(str)
     s1 = re.sub(r'<[\w\d_\-!.\'\"\/\s=]+>', ',', s1)
     # s1 = re.sub(r'(本社)|(リクナビNEXT上の地域分類では……)|(【[\u0800-\u4e00\u4e00-\u9fa5\d\w.\\\/◎・]+】)', ',', s1)
-    s1 = re.sub(r'(本社)|(リクナビNEXT上の地域分類では……)|(交通手段)|(交通)|(アクセス)|(転勤なし)|(各線)', ',', s1)
+    s1 = re.sub(
+        r'(本社)|(リクナビNEXT上の地域分類では……)|(UIターン大歓迎です)|(Iターン歓迎)|(交通手段)|(交通)|(アクセス)|(転勤なし)|(各線)|(JR)|(市)|(府)|(県)|(その他)|(より)|(徒歩\d+分)|(東京メトロ)|(または)|(&lt;)',
+        ',', s1)  # 東京メトロ是"Tokyo Metro"，一种交通营运方式的名称，直接去掉
+    s1 = re.sub(r'(東京23区)|(東京都)|(東京内)', '東京', s1)
     return s1
 
 # 全角转半角

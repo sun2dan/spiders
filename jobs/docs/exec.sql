@@ -26,6 +26,10 @@
 -- 各类型数量
 -- select ntype, count(ntype) from total group by ntype
 
+-- 公司信息重叠
+-- select * from total where during <> "" and ntype="ten" and company in (
+--	select company from total where during <> "" and ntype<>"ten" )
+
 
 
 
