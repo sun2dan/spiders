@@ -34,12 +34,11 @@ class JobOperator(scrapy.Spider):  # 继承scrapy.Spider类
             tds = tr.css('td')
             if len(tds) != 7: continue
             data['period'] = tds[1].css('::text').extract_first()
-            data['openTime'] = tds[0].css('::text').extract_first()
             balls = tds[2].css('em::text').extract()
-            for idx in range(1, 7):
-                data['r' + str(idx)] = balls[idx]
-            data['b'] = balls[-1]
-            data['amount'] = re.sub(r',', '', tds[3].css('strong::text').extract_first())
-            data['first'] = tds[4].css('strong::text').extract_first()
-            data['second'] = tds[5].css('strong::text').extract_first()
-            self.dba.insert(data)
+            len1 = len(balls)
+            idx = 0
+            for num in balls:
+                idx += 1
+                data['num'] = num
+                data['type'] = int(len1 == idx)
+                self.dba.insert(data)

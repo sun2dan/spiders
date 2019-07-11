@@ -13,18 +13,9 @@ class DBA():
         sql = '''
             CREATE TABLE "%s" (
                 "id"	    INTEGER PRIMARY KEY AUTOINCREMENT,
-                "period"	    TEXT, -- 期号   
-                "r1"	INT,   -- 红球1
-                "r2"	INT,   -- 红球2
-                "r3"	INT,   -- 红球3
-                "r4"	INT,   -- 红球4
-                "r5"	INT,   -- 红球5
-                "r6"	INT,   -- 红球6
-                "b"	    INT,   -- 蓝球
-                "amount"    INT,   -- 销售额
-                "first"     INT,   -- 一等奖中奖数目
-                "second"    INT,   -- 二等奖中奖数目
-                "openTime"  DateTime -- 开奖时间
+                "period"    INT,  -- 期号
+                "num"       INT,  -- 号码
+                "type"      INT   -- 类型：红球-0 蓝球-1
             )''' % table_name
         try:
             conn.execute(sql)
@@ -40,24 +31,15 @@ class DBA():
         data = {}
         data["id"] = ''
         data["period"] = ''
-        data["r1"] = ''
-        data["r2"] = ''
-        data["r3"] = ''
-        data["r4"] = ''
-        data["r5"] = ''
-        data["r6"] = ''
-        data["b"] = ''
-        data["amount"] = ''
-        data["first"] = ''
-        data["second"] = ''
-        data["openTime"] = ''
+        data["num"] = ''
+        data["type"] = ''
         return data
 
     def insert(self, data):
         conn = sqlite3.connect(self.db_name)
-        sql = 'insert into ' + self.table_name + ''' (period, r1,r2,r3,r4,r5,r6,b,amount,first,second,openTime) values ('{period}', {r1},{r2},{r3},{r4},{r5},{r6},{b},{amount},{first},'{second}', '{openTime}' )'''.format(
-            **data)
-        # print(sql)
+        sql = 'insert into ' + self.table_name + ''' (period, num, type) values 
+            ({period}, {num}, {type})'''.format(**data)
+        print(sql)
         conn.execute(sql)
         conn.commit()
         conn.close()
