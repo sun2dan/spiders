@@ -19,8 +19,7 @@ where = ' where 1=1 and during<>"" '  # 默认为rikunabi中的新数据 + tensh
 def main():
     list = get_all()
     basic_analysis(list)
-    wordcloud_skill(list)
-    wordcloud_addr(list)
+    wordcloud_analysis(list)
 
 # 基本分析
 def basic_analysis(list):
@@ -69,30 +68,39 @@ def basic_analysis(list):
 
     conn.close()
 
-# 技能词云
-def wordcloud_skill(list):
+# 词云分析
+def wordcloud_analysis(list):
+
+    # 技能
     name = 'skill'
-    img_path = 'src/%s.png' % name
-    skill_arr = []
+    key_map = ['content', 'claim', 'tags']
+    wordcloud_common(name, key_map, list, format_skill)
 
-    for row in list:
-        skill_arr.append(format_skill(row[2]))  # content 工作内容
-        skill_arr.append(format_skill(row[3]))  # claim 任职要求
-        skill_arr.append(format_skill(row[10]) + '\n')  # tags 标签
-    skill_str = '\n'.join(skill_arr)
-    create_wordcloud(skill_str, img_path)
-    write_file(name, skill_str, list, [2, 3, 10])
-
-# 工作地点词云
-def wordcloud_addr(list):
+    # 工作地点
     name = 'addr'
-    img_path = './src/%s.png' % name
-    addr_arr = []
-    for row in list:
-        addr_arr.append(format_addr(row[4]))  # addr 地址
-    addr_str = '\n'.join(addr_arr)
-    create_wordcloud(addr_str, img_path)
-    write_file(name, addr_str, list, [4])
+    wordcloud_common(name, [name], list, format_addr)
+
+    # 休日・休暇
+    name = 'holiday'
+    wordcloud_common(name, [name], list, format_common)
+
+    # 待遇・福利厚生
+    name = 'welfare'
+    wordcloud_common(name, [name], list, format_common)
+
+# ----------------------- 工具函数 -----------------------
+# 词云生成公共函数
+def wordcloud_common(name, key_map, list, format_fn):
+    img_path = 'src/%s.png' % name
+    str_arr = []
+
+    for data in list:
+        for key in key_map:
+            str_arr.append(format_fn(data[key] + '\n'))
+    str_str = '\n'.join(str_arr)
+
+    create_wordcloud(str_str, img_path)
+    write_file(name, str_str, list, key_map)
 
 # 创建词云 + 保存图片
 def create_wordcloud(text, img_path):
@@ -118,22 +126,22 @@ def create_wordcloud(text, img_path):
     wordcloud.to_file(img_path)
 
 # 将原始文本和过滤之后的文本存储到文件中，方便查看对比
-def write_file(name, text, list, idx_arr):
+def write_file(name, text, list, key_map):
     if not DEBUG: return
-    file_raw = 'src/%s.txt' % (name + '_raw')
-    file_filter = 'src/%s.txt' % (name + '_filter')
+    file_raw = 'src/text/%s.txt' % (name + '_raw')
+    file_filter = 'src/text/%s.txt' % (name + '_filter')
 
     # 过滤之后的数据 src/add_filter.txt
     with open(file_filter, "w") as f:  # w-覆盖
         f.write(text)
         f.close()
 
-    # 原始数据文件 src/add_raw.txt，如果存在就不重写，因为原始数据没有经过处理，不用每次重新生成
+    # 原始数据文件xx_raw.txt，如果存在就不重写，因为原始数据没有经过处理，不用每次重新生成
     if os.path.exists(file_raw): return
     with open(file_raw, "w") as f:
-        for row in list:
-            for idx in idx_arr:
-                f.write(row[idx] + '\n')
+        for data in list:
+            for key in key_map:
+                f.write(data[key] + '\n')
             f.write('\n')
         f.close()
 
@@ -160,6 +168,12 @@ def format_addr(str):
     s1 = re.sub(r'(東京23区)|(東京都)|(東京内)', '東京', s1)
     return s1
 
+# 公共格式化内容字符串
+def format_common(str):
+    s1 = strQ2B(str)
+    s1 = re.sub(r'<[\w\d_\-!.\'\"\/\s=]+>', ',', s1)
+    return s1
+
 # 全角转半角
 def strQ2B(ustring):
     rstring = ""
@@ -178,8 +192,22 @@ def get_all():
     cur = conn.cursor()
     sql = 'select * from total %s' % where
     cur.execute(sql)
-    list = cur.fetchall()
+    rows = cur.fetchall()
     conn.close()
+
+    list = []
+    key_map = ['id', 'title', 'content', 'claim', 'addr', 'salary',
+               'worktime', 'holiday', 'welfare', 'during', 'tags',
+               'company', 'desc', 'url', 'ntype', 'createdTime']
+
+    for row in rows:
+        data = {}
+        idx = 0
+        for key in key_map:
+            data[key] = row[idx]
+            idx += 1
+        list.append(data)
+
     return list
 
 if __name__ == "__main__":

@@ -23,6 +23,9 @@
 -- select count(*) from total where during <> ''
 -- select count(*) from total where ntype <> 't'
 
+-- 带招聘人数
+-- select * from total where tags  like "%募集人数%" --or desc  like "%募集人数%"
+
 -- 各类型数量
 -- select ntype, count(ntype) from total group by ntype
 

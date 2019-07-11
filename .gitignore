@@ -3,4 +3,4 @@
 .idea
 .idea/**/*.*
 onepiece/images/
-jobs/analysis/src/*.txt
+jobs/analysis/src/**/*.txt
