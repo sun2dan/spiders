@@ -86,7 +86,7 @@ def wordcloud_skill(list):
 # 工作地点词云
 def wordcloud_addr(list):
     name = 'addr'
-    img_path = 'src/%s.png' % name
+    img_path = './src/%s.png' % name
     addr_arr = []
     for row in list:
         addr_arr.append(format_addr(row[4]))  # addr 地址
