@@ -2,5 +2,5 @@
 *.db
 .idea
 .idea/**/*.*
-onepiece/images/**/*.jpg
-onepiece/images/**/*.png
+onepiece/images/
+jobs/analysis/src/*.txt
