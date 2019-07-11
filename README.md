@@ -6,6 +6,11 @@
 
 用的是scrapy库
 
+## lottery
+爬取 [双色球中奖号码数据](http://kaijiang.zhcw.com/zhcw/html/ssq/list_1.html)；想对彩票数据做一个分析，验证之前自己的想法； 
+
+用的是scrapy库；
+
 ## onepiece
 爬取 [onepiece官网](https://one-piece.com) 上的角色和恶魔果实数据；
 
