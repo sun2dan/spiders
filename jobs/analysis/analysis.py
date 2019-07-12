@@ -1,6 +1,10 @@
-import sys, os, re
+import sys, os, re, time
 from os import path
 import sqlite3
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.cbook as cbook
+from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
 os.environ['FONT_PATH'] = '/System/Library/Fonts/ヒラギノ明朝 ProN.ttc'
 from wordcloud import WordCloud
@@ -18,8 +22,11 @@ where = ' where 1=1 and during<>"" '  # 默认为rikunabi中的新数据 + tensh
 
 def main():
     list = get_all()
-    basic_analysis(list)
-    wordcloud_analysis(list)
+    # basic_analysis(list)
+    # wordcloud_analysis(list)
+    test()
+
+    special_analysis(list)
 
 # 基本分析
 def basic_analysis(list):
@@ -70,7 +77,6 @@ def basic_analysis(list):
 
 # 词云分析
 def wordcloud_analysis(list):
-
     # 技能
     name = 'skill'
     key_map = ['content', 'claim', 'tags']
@@ -86,7 +92,111 @@ def wordcloud_analysis(list):
 
     # 待遇・福利厚生
     name = 'welfare'
-    wordcloud_common(name, [name], list, format_common)
+    wordcloud_common(name, [name], list, format_welfare)
+
+    # 工资词云都是一些数字，无法表现出有效信息
+    # name = 'salary'
+    # wordcloud_common(name, [name], list, format_salary)
+
+# 特殊处理
+def special_analysis(list):
+    # salary 工资
+
+    file_raw = 'src/text/salary_raw.txt'
+    # 原始数据文件xx_raw.txt，如果存在就不重写，因为原始数据没有经过处理，不用每次重新生成
+    if not os.path.exists(file_raw):
+        with open(file_raw, "w") as f:
+            for data in list:
+                f.write(str(data['id']) + ' ' + data['salary'] + '\n')
+            f.close()
+
+    age_arr = []
+    exp_arr = []
+
+    for item in list:
+        s1 = item['salary']
+        # 去掉特殊字符
+        s1 = re.sub(r'◆|●|■|※|★|◎|□|┗', '', s1)
+
+        # 月給例暂不考虑
+        ''' 
+        3826 两个【モデル年収】
+        5825 前边有了"年收例"，截取失败
+        5824/5821 失败
+        '''
+        re_str = r'((>モデル年収例<)|(【年収例】)|(【モデル年収】))'
+        if re.search(re_str, s1) is None: continue
+
+        s2 = re.sub(r'[\s\S]+%s' % re_str, '', s1)
+        # 去前后标签和字符
+        s2 = re.sub(r'^】|(/em>)|＞|≫|》', '', s2)
+        s2 = re.sub(r'(^<br>)|(<br>$)', '', s2)
+        arr = s2.split('<br>')
+        # 两个维度：年龄和工作年限
+        for s3 in arr:
+            income = get_value(r'(\d{3,})万円', s3)  # 年收入
+            age = get_value(r'(\d{2})歳|才', s3)  # 年龄
+            work_year = get_value(r'経験(\d+)年', s3)  # 工作经验
+            # 入社5年目：进入公司五年，这种就不考虑了，不好衡量工作年限
+            if income and age and income < 1500:
+                age_arr.append((age, income))
+            if income and work_year and income < 1500:
+                exp_arr.append((work_year, income))
+        print(item['id'], s2)
+    # print(exp_arr, '\n', age_arr)
+    draw_scatter(age_arr, ['Age and income'])
+    draw_scatter(exp_arr, ['WorkingAge and income'])
+
+# 绘制散点图
+def draw_scatter(tar_arr, titles):
+    xarr = []
+    yarr = []
+    len_800 = 0
+    len_1000 = 0
+    for obj in tar_arr:
+        if obj[1] > 800: len_800 += 1
+        if obj[1] > 1000: len_1000 += 1
+        xarr.append(obj[0])
+        yarr.append(obj[1])
+
+    print('年收大于800万的百分比：', len_800 / len(tar_arr) * 100)
+    print('年收大于1000万的百分比：', len_1000 / len(tar_arr) * 100)
+
+    fig, ax = plt.subplots()
+    ax.scatter(xarr, yarr, alpha=0.5)  # c=close,s=volume,
+
+    ax.xaxis.set_major_locator(MultipleLocator(2))  # 将x主刻度标签设置为2的倍数
+    ax.yaxis.set_major_locator(MultipleLocator(100))  # 将y轴主刻度标签设置为50的倍数
+
+    # ax.set_xlabel(titles[0])  # , fontsize=15
+    # ax.set_ylabel(titles[1])
+    ax.set_title(titles[0])
+
+    ax.grid(linestyle='-', linewidth=0.4)
+    fig.tight_layout()
+
+    plt.show()
+
+# 从字符串中获取值
+def get_value(pattern, s):
+    pattern = re.compile(pattern)
+    res = pattern.findall(s)
+    if len(res) == 0: return ''
+    s1 = res[0]
+    if s1 == '': return ''
+    return int(s1)
+
+# 测试代码
+def test():
+    s1 = '''【月給】21万円～32万円+各種手当（残業代全額支給など）<br>【モデル年収】420万円～600万円<br>※経験・スキル・年齢等を考慮の上、優遇いたします。<br>《試用期間》<br>6ヵ月(日給1万800円～1万6000円)<br>※試用期間中は契約社員雇用<br>※期間満了後に正社員として雇用します<br>当社は固定残業代の採用はしておりません。<br>残業代は100%支給します。<br>1分単位での残業代が支給されます。<br>400万円～600万円<br>'''
+    s1 = re.sub(r'◆|●|■|※|★|◎|□|┗', '', s1)
+
+    re_str = r'((>モデル年収例<)|(【年収例】)|(【モデル年収】))'
+    has_keywords = re.search(re_str, s1)
+    if has_keywords is None: return
+
+    s2 = re.sub(r'[\s\S]+%s' % re_str, '', s1)
+    # print(s2)
 
 # ----------------------- 工具函数 -----------------------
 # 词云生成公共函数
@@ -110,7 +220,6 @@ def create_wordcloud(text, img_path):
     wordcloud = WordCloud().generate(text)
 
     # Display the generated image:  # the matplotlib way:
-    import matplotlib.pyplot as plt
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis("off")
 
@@ -166,6 +275,21 @@ def format_addr(str):
         r'(本社)|(リクナビNEXT上の地域分類では……)|(UIターン大歓迎です)|(Iターン歓迎)|(交通手段)|(交通)|(アクセス)|(転勤なし)|(各線)|(JR)|(市)|(府)|(県)|(その他)|(より)|(徒歩\d+分)|(東京メトロ)|(または)|(&lt;)',
         ',', s1)  # 東京メトロ是"Tokyo Metro"，一种交通营运方式的名称，直接去掉
     s1 = re.sub(r'(東京23区)|(東京都)|(東京内)', '東京', s1)
+    return s1
+
+# 格式化福利字符串
+def format_welfare(str):
+    s1 = strQ2B(str)
+    s1 = re.sub(r'<[\w\d_\-!.\'\"\/\s=]+>', ',', s1)
+    s1 = re.sub(r'制度', '', s1)
+    s1 = re.sub(r'(各種社会保険完備)|(社保完備)|(社保完)', '社会保険完備', s1)
+    return s1
+
+# 工资
+def format_salary(str):
+    s1 = strQ2B(str)
+    s1 = re.sub(r'<[\w\d_\-!.\'\"\/\s=]+>', ',', s1)
+    s1 = re.sub(r'(経験)|(賞与)|(手当)|(モデル)|(年収例)|(年齢)|(月給)|(各種)|(能力を考慮)|,|(の上)', '', s1)
     return s1
 
 # 公共格式化内容字符串

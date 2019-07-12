@@ -4,6 +4,8 @@
 想做一个日本IT公司招聘信息的分析；从任职要求、薪资范围、工作地点等做一个大体的分析；
 以了解日本IT环境；
 
+数据分析在这儿：[https://ashita.top/backend/jp-recruit.html](https://ashita.top/backend/jp-recruit.html)
+
 先从下面两个网站获取数据：
 - https://next.rikunabi.com
 - https://tenshoku.mynavi.jp
