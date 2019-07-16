@@ -1,12 +1,10 @@
-import sys, os
+import sys, os, time
 import sqlite3
 import random
 
 ''' 数据分析及生成
-1.假设将要抽10560次（16和33的公倍数）理想状态下，蓝球出现次数应该为 10560/16=660 次，红球出现的次数应该为 10560*6/33=1920 次；
-2.现在已经抽了2420次，蓝球实际出现 b1、b2……、b16 次，红球实际出现 r1、r2……、r33 次；
-用1中的理想状态下的次数，分别减去各个数字已经出现的次数，相加分别得到红球、蓝球集合；
-3.产生随机数，生成数字；红球每生成一个数字，需要改变刚才算好的集合，因为该红球在本次抽奖中不会再出现；
+1. 取出库中实际的开奖次数，用概率乘开奖次数得出理想状态下出现的次数；
+2. 现在已经抽了2420次，假设已经完成了50%，即总次数为2420*2=4840次，2-实际次数/应该出现的次数 = 下次出现的"实际"概率，
 '''
 # 原始数据
 red_map = {}
@@ -17,27 +15,48 @@ blue_exclude = {}
 # 实时集合
 red_set = []
 blue_set = []
-
 # 红球、蓝球每个号码理想状态下出现的次数
-blue_count = 660
-red_count = 1920
+blue_count = 0
+red_count = 0
+# 假设抽取的总次数（和概率相乘，实际是想要保留概率的几位小数）
+sum_count = 10000
 
 def main():
     get_data()
-    fill_set()
-    random.shuffle(red_set)
-    random.shuffle(blue_set)
-    print(red_set, blue_set)
 
-# 生成目标集合，红球选6个，蓝球选1个
-def create_target():
+    global red_exclude
+    global blue_exclude
+    red_exclude = {}
+    blue_exclude = {}
 
-    pass
-
-# 生成数字集合
-def fill_set():
+    global blue_set
+    blue_set = []
     fill_num(blue_map, blue_exclude, blue_set, blue_count)
-    fill_num(red_map, red_exclude, red_set, red_count)
+    random.shuffle(blue_set)
+    blue_rand = get_random(len(blue_set))
+    blue_target = blue_set[blue_rand]
+
+    res_red = []
+    global red_set
+    for n in range(0, 6):
+        red_set = []
+        fill_num(red_map, red_exclude, red_set, red_count)
+        if len(red_set) == 0:
+            print('len为0')
+            continue
+        random.shuffle(red_set)
+        red_rand = get_random(len(red_set))
+        red_target = red_set[red_rand]
+        res_red.append(red_target)
+        red_exclude[red_target] = 1
+
+    res_red.sort()
+    print('红球为：', res_red, '蓝球为：', blue_target)
+
+def get_random(count):
+    time.sleep(random.random() ** random.random())
+    random.seed(random.random() ** random.random())
+    return random.randint(0, count - 1)
 
 # 生成数字集合公共方法
 def fill_num(col_map, col_ex, col_set, col_count):
@@ -45,8 +64,11 @@ def fill_num(col_map, col_ex, col_set, col_count):
         count = col_map[num]
         if col_ex.get(num, 0) > 0:
             continue
-        for n in range(0, col_count - count):
+        # print((1 - count / col_count))
+        end = int((1 - count / col_count) * sum_count)
+        for n in range(0, end):
             col_set.append(num)
+    # range_end = sum_count * times / 2 - len(red_set)
 
 # 获取库里边的数据
 def get_data():
@@ -60,6 +82,10 @@ def get_data():
     sql = 'select num,count(num) from raw where type=1 group by num'
     cur.execute(sql)
     blue_res = cur.fetchall()
+
+    sql = 'select count(num) from raw where type=1'
+    cur.execute(sql)
+    total_res = cur.fetchone()
     conn.close()
 
     for row in red_res:
@@ -67,5 +93,17 @@ def get_data():
     for row in blue_res:
         blue_map[row[0]] = row[1]
 
+    total = 0
+    if total_res:
+        total = total_res[0]
+    else:
+        print('未查到总次数')
+
+    global blue_count, red_count
+    # 当前次数2倍的集合里，理想状态应该出现的次数；可能会有除不尽的情况
+    blue_count = total / 16 * 2  # total/16，一倍集合里应该出现的次数
+    red_count = total * 6 / 33 * 2
+
 if __name__ == "__main__":
-    main()
+    for n in range(0, 10):
+        main()
