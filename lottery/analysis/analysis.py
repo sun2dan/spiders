@@ -51,7 +51,12 @@ def main():
         red_exclude[red_target] = 1
 
     res_red.sort()
-    print('红球为：', res_red, '蓝球为：', blue_target)
+
+    res = []
+    for n in res_red:
+        res.append(str(n).rjust(2, '0'))
+    blue_num = str(blue_target).rjust(2, '0')
+    print(', '.join(res), '+', blue_num)
 
 def get_random(count):
     time.sleep(random.random() ** random.random())
