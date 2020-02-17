@@ -6,13 +6,16 @@ import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
+
 os.environ['FONT_PATH'] = '/System/Library/Fonts/ヒラギノ明朝 ProN.ttc'
 from wordcloud import WordCloud
+
 
 DEBUG = True  # 调试，会生成词云的原始文件，便于和结果对比，查找原始词汇
 db_name = '../job.db'
 # 公共where条件（有招聘时间）
 where = ' where 1=1 and during<>"" '  # 默认为rikunabi中的新数据 + tenshoku中的数据
+
 
 # where 1=1 # 所有数据
 # where 1=1 and during<>""  # rikunabi中的新数据 + tenshoku中的数据
@@ -27,6 +30,7 @@ def main():
     test()
 
     special_analysis(list)
+
 
 # 基本分析
 def basic_analysis(list):
@@ -75,6 +79,7 @@ def basic_analysis(list):
 
     conn.close()
 
+
 # 词云分析
 def wordcloud_analysis(list):
     # 技能
@@ -97,6 +102,7 @@ def wordcloud_analysis(list):
     # 工资词云都是一些数字，无法表现出有效信息
     # name = 'salary'
     # wordcloud_common(name, [name], list, format_salary)
+
 
 # 特殊处理
 def special_analysis(list):
@@ -144,29 +150,87 @@ def special_analysis(list):
                 exp_arr.append((work_year, income))
         print(item['id'], s2)
     # print(exp_arr, '\n', age_arr)
-    draw_scatter(age_arr, ['Age and income'])
-    draw_scatter(exp_arr, ['WorkingAge and income'])
+    draw_scatter(age_arr, ['Ages and salary'])
+    draw_scatter(exp_arr, ['WorkingYears and salary'])
+
 
 # 绘制散点图
 def draw_scatter(tar_arr, titles):
     xarr = []
     yarr = []
+    len_200 = 0
+    len_300 = 0
+    len_400 = 0
+    len_500 = 0
+    len_600 = 0
+    len_700 = 0
     len_800 = 0
+    len_900 = 0
     len_1000 = 0
+    age_30 = 0
+    print(tar_arr)
     for obj in tar_arr:
-        if obj[1] > 800: len_800 += 1
-        if obj[1] > 1000: len_1000 += 1
-        xarr.append(obj[0])
-        yarr.append(obj[1])
+        salary = obj[1]
+        age = obj[0]
+        #if age == 30:
+        age_30 += 1
+        if salary >= 1000:
+            len_1000 += 1
+        elif salary >= 900:
+            len_900 += 1
+        elif salary >= 800:
+            len_800 += 1
+        elif salary >= 700:
+            len_700 += 1
+        elif salary >= 600:
+            len_600 += 1
+        elif salary >= 500:
+            len_500 += 1
+        elif salary >= 400:
+            len_400 += 1
+        elif salary >= 300:
+            len_300 += 1
+        elif salary >= 200:
+            len_200 += 1
 
-    print('年收大于800万的百分比：', len_800 / len(tar_arr) * 100)
-    print('年收大于1000万的百分比：', len_1000 / len(tar_arr) * 100)
+        # if 200 <= salary < 300:
+        #     len_200 += 1
+        # elif 300 <= salary < 400:
+        #     len_300 += 1
+        # elif 400 <= salary < 500:
+        #     len_400 += 1
+        # elif 500 <= salary < 600:
+        #     len_500 += 1
+        # elif 600 <= salary < 700:
+        #     len_600 += 1
+        # elif 700 <= salary < 800:
+        #     len_700 += 1
+        # elif 800 <= salary < 900:
+        #     len_800 += 1
+        # elif 900 <= salary < 1000:
+        #     len_900 += 1
+        # elif 1000 <= salary:
+        #     len_1000 += 1
+        xarr.append(salary)
+        yarr.append(age)
+
+    total = len(tar_arr)
+    #total = age_30
+    print('年收大于200万的百分比：', len_200 / total * 100)
+    print('年收大于300万的百分比：', len_300 / total * 100)
+    print('年收大于400万的百分比：', len_400 / total * 100)
+    print('年收大于500万的百分比：', len_500 / total * 100)
+    print('年收大于600万的百分比：', len_600 / total * 100)
+    print('年收大于700万的百分比：', len_700 / total * 100)
+    print('年收大于800万的百分比：', len_800 / total * 100)
+    print('年收大于900万的百分比：', len_900 / total * 100)
+    print('年收大于1000万的百分比：', len_1000 / total * 100)
 
     fig, ax = plt.subplots()
-    ax.scatter(xarr, yarr, alpha=0.5)  # c=close,s=volume,
+    ax.scatter(xarr, yarr, s=26, alpha=0.4)  # c=close,s=volume,
 
-    ax.xaxis.set_major_locator(MultipleLocator(2))  # 将x主刻度标签设置为2的倍数
-    ax.yaxis.set_major_locator(MultipleLocator(100))  # 将y轴主刻度标签设置为50的倍数
+    ax.xaxis.set_major_locator(MultipleLocator(100))  # 将x主刻度标签设置为2的倍数
+    ax.yaxis.set_major_locator(MultipleLocator(2))  # 将y轴主刻度标签设置为50的倍数
 
     # ax.set_xlabel(titles[0])  # , fontsize=15
     # ax.set_ylabel(titles[1])
@@ -177,6 +241,7 @@ def draw_scatter(tar_arr, titles):
 
     plt.show()
 
+
 # 从字符串中获取值
 def get_value(pattern, s):
     pattern = re.compile(pattern)
@@ -185,6 +250,7 @@ def get_value(pattern, s):
     s1 = res[0]
     if s1 == '': return ''
     return int(s1)
+
 
 # 测试代码
 def test():
@@ -197,6 +263,7 @@ def test():
 
     s2 = re.sub(r'[\s\S]+%s' % re_str, '', s1)
     # print(s2)
+
 
 # ----------------------- 工具函数 -----------------------
 # 词云生成公共函数
@@ -211,6 +278,7 @@ def wordcloud_common(name, key_map, list, format_fn):
 
     create_wordcloud(str_str, img_path)
     write_file(name, str_str, list, key_map)
+
 
 # 创建词云 + 保存图片
 def create_wordcloud(text, img_path):
@@ -234,6 +302,7 @@ def create_wordcloud(text, img_path):
 
     wordcloud.to_file(img_path)
 
+
 # 将原始文本和过滤之后的文本存储到文件中，方便查看对比
 def write_file(name, text, list, key_map):
     if not DEBUG: return
@@ -254,6 +323,7 @@ def write_file(name, text, list, key_map):
             f.write('\n')
         f.close()
 
+
 # 格式化技能内容字符串
 # 去html标签、全角转半角、去除汉字/日文，去掉NEW这类固定的标签文案
 def format_skill(str):
@@ -266,6 +336,7 @@ def format_skill(str):
     s4 = re.sub(r',+', ',', s3)
     return s4
 
+
 # 格式化地址内容字符串
 def format_addr(str):
     s1 = strQ2B(str)
@@ -277,6 +348,7 @@ def format_addr(str):
     s1 = re.sub(r'(東京23区)|(東京都)|(東京内)', '東京', s1)
     return s1
 
+
 # 格式化福利字符串
 def format_welfare(str):
     s1 = strQ2B(str)
@@ -285,6 +357,7 @@ def format_welfare(str):
     s1 = re.sub(r'(各種社会保険完備)|(社保完備)|(社保完)', '社会保険完備', s1)
     return s1
 
+
 # 工资
 def format_salary(str):
     s1 = strQ2B(str)
@@ -292,11 +365,13 @@ def format_salary(str):
     s1 = re.sub(r'(経験)|(賞与)|(手当)|(モデル)|(年収例)|(年齢)|(月給)|(各種)|(能力を考慮)|,|(の上)', '', s1)
     return s1
 
+
 # 公共格式化内容字符串
 def format_common(str):
     s1 = strQ2B(str)
     s1 = re.sub(r'<[\w\d_\-!.\'\"\/\s=]+>', ',', s1)
     return s1
+
 
 # 全角转半角
 def strQ2B(ustring):
@@ -309,6 +384,7 @@ def strQ2B(ustring):
             inside_code -= 65248
         rstring += chr(inside_code)
     return rstring
+
 
 # 获取所有数据
 def get_all():
@@ -333,6 +409,7 @@ def get_all():
         list.append(data)
 
     return list
+
 
 if __name__ == "__main__":
     main()
